@@ -4,7 +4,7 @@ from statsmodels.tsa.stattools import adfuller
 from fbprophet import Prophet
 
 
-st.set_page_config(page_title='Industry Search')
+st.set_page_config(page_title='Sales Forcasting')
 
 
 
@@ -75,11 +75,11 @@ if uploaded_file is not None:
 
     df = resample_data(df)
 
-    # Streamlit currently doesn't support the statsmodels library
+   
     # Stationarity test
-    # p_value = adfuller(df["Profit"])[1]
-    # if p_value >= 0.05:
-    #     st.error('Data is not stationary')
+    p_value = adfuller(df["Profit"])[1]
+    if p_value >= 0.05:
+        st.error('Data is not stationary')
 
     
 
