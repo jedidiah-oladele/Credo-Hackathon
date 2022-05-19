@@ -5,7 +5,7 @@ from fbprophet import Prophet
 
 
 st.set_page_config(page_title='Sales Forcasting')
-
+st.title('Profit Forcasting')
 
 
 def extract_columns(df):
@@ -36,7 +36,7 @@ def resample_data(df):
 
 
 
-def perform_forecast(df):
+def perform_forecast(df, period, frequency):
     df_univar = df[["Order Date", "Profit"]].rename(columns={"Order Date":"ds", "Profit":"y"})
     
     # 70-30 Train-Test split
@@ -50,9 +50,7 @@ def perform_forecast(df):
     model.fit(df_train)
 
     # Make future dates
-    periods_to_predict = df_test.shape[0]
-    future_dates = model.make_future_dataframe(periods=periods_to_predict, freq='M')
-    assert df_univar.shape[0] == future_dates.shape[0]
+    future_dates = model.make_future_dataframe(periods=period, freq=frequency)
 
     # Predict for the next n months
     forecast = model.predict(future_dates)
@@ -81,11 +79,27 @@ if uploaded_file is not None:
     if p_value >= 0.05:
         st.error('Data is not stationary')
 
-    
-
     df.reset_index(inplace=True)
-    forecast = perform_forecast(df)
 
-    st.dataframe(df)
+    
+    # Forcasting logic
+    st.title('Forcast')
+    st.markdown(f"#### Select period to forecast")
+
+    period = st.number_input('Period', min_value=1, value=1)
+    frequency_selected = st.selectbox('', options=['Week', 'Month', 'Year'])
+    frequency = frequency_selected[0]
+    if st.button('Forecast'):
+        with st.spinner('Forcasting'):
+            forecast = perform_forecast(df, period, frequency)
+            forecasted_data = forecast[['ds', 'yhat']].rename(columns={"ds":"Date", "yhat":"Profit"})
+
+        
+        st.markdown(f"#### Forcasted sales for the next {period} {frequency_selected}s")
+        st.dataframe(forecasted_data)
+
+        # Download file
+        forecasted_csv_file = forecasted_data.to_csv().encode('utf-8')
+        st.download_button('Download file', data=forecasted_csv_file)
     
 
