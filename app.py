@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-#from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.stattools import adfuller
 from fbprophet import Prophet
 
 
